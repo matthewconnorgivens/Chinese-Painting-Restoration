@@ -1,0 +1,128 @@
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+import javax.swing.*;
+
+/**
+ * Testing code for Painting Restorator
+ * 
+ * @author Matthew Givens
+ */
+
+ public class Painter extends DrawingGUI{
+    // original image
+    private BufferedImage image;  
+    // image after processing      
+    private BufferedImage recoloredImage;
+
+    // list of background colors which will be processed
+    private ArrayList<Point> backgroundColors;
+
+    private int firstx;
+    private int firsty;
+
+    private int secondx;
+    private int secondy;
+
+    private static final int maxColorDiff = 5;
+
+    Color myWhite = new Color(255, 255, 255);
+
+
+    /**
+     * 
+     * Constructor
+     */
+    public Painter(String name) {
+        this.image = loadImage(name);
+    }
+
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public BufferedImage getRecoloredImage(){
+        return recoloredImage;
+    }
+
+    /**
+     * this function draws the initial image
+     */
+    public void drawOne(Graphics g){
+        g.drawImage(image, 0, 0, null);
+    }
+
+
+    /**
+     * Overrides the drawing gui to set the corners
+     * ** first is assumed to be set higher and further left
+     */
+    @Override
+    public void handleMousePress(int x, int y) {
+        // if first corner has been set but second hasnt, set second
+        if (firstx != null && secondx == null){
+            secondx = x;
+            secondy = y
+        }
+
+        // if first hasnt been set, set first
+        if (firstx == null){
+            firstx = x;
+            firsty = y;
+        }
+    }
+
+    public void backgroundColorFinder() {
+        backgroundColors = new ArrayList<>();
+
+        for(int i = firstx; i <= secondx; i++){
+            for (int j = firsty; j <= secondy, j++){
+                Point pixel = new Point(x, y);
+                backgroundColors.add(pixel);
+            }
+        }
+    }
+
+    public void restore(){
+        recoloredImage = new BufferedImage(image.getColorModel(), image.copyData(null), image.getColorModel().isAlphaPremultiplied(), null);
+
+        //loops over all pixels in image
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                
+                boolean matched = false;
+                for (int p = 0; p < backgroundColors.size(); p++){
+                    Point curr = backgroundColors.get(p);
+                    int currX = (int) (curr.getX());
+                    int currY = (int) (curr.getY());
+                    // if the color we're looking at matches
+                    if (colorMatch(new Color(image.getRGB(currX, currY)), new Color(image.getRGB(x, y)))){
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (matched){
+                    recoloredImage.setRGB(x, y, myWhite);
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests whether the two colors are "similar enough" (your definition, subject to the maxColorDiff threshold, which you can vary).
+     */
+    private static boolean colorMatch(Color c1, Color c2) {
+        // compares colors
+        // if the abs value difference between the r g or b values is greater than the maxColorDiff, it returns false
+        if ((Math.abs(c1.getRed() - c2.getRed())) <= maxColorDiff) {
+            if ((Math.abs(c1.getGreen() - c2.getGreen())) <= maxColorDiff) {
+                if ((Math.abs(c1.getBlue() - c2.getBlue())) <= maxColorDiff) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+ }
