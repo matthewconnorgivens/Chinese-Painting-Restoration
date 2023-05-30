@@ -16,12 +16,15 @@ import java.io.IOException;
 
 
 /**
- * tests the painter
+ * sets all pixels similar to colors clicked to color myWhite, excludes colors that are too dark
  */
 
  public class painterTest extends DrawingGUI{
 
+    // maxmimum color difference for checking if pixels matched, the higher the further away the colors can be
     private static final int maxColorDiff = 10;
+    // max color difference for checking how dark a color is, the higher the further away from black it can be
+    private static final int blackdiff = 80;
 
     private BufferedImage image;
     private Painter painter;
@@ -31,38 +34,22 @@ import java.io.IOException;
 
     int myWhite = new Color(247, 236, 202).getRGB();
 
-    // corner values initialized to -1 to show null
-    private int firstx = -1;
-    private int firsty = -1;
-
-    private int secondx = -1;
-    private int secondy = -1;
 
     public painterTest(String name, BufferedImage image){
         super(name, image.getWidth(), image.getHeight());
         this.image = image;
         
-        
-        System.out.println("constructor");
+    
         repaint();
-        System.out.println("constructor done");
-        
-
-        
-        // p.restore();
-        // image = p.getRecoloredImage();
     }
 
-
-        /**
-     * Overrides the drawing gui to set the corners
-     * ** first is assumed to be set higher and further left
-     */
     @Override
     public void handleMousePress(int x, int y) {
         backgroundColors = new ArrayList<Color>();
 
+        // radius for the click
         int r = 1;
+        // loops through neigbors of pixel clicked on and adds to a list
         for (int row = Math.max(x - r, 0); row < Math.min(x + r + 1, image.getWidth()); row++) {
             for (int col = Math.max(y - r, 0); col < Math.min(y + r + 1, image.getHeight()); col++) {
                 Color c = new Color(image.getRGB(row, col));
@@ -72,21 +59,11 @@ import java.io.IOException;
             }
         }
 
+        // loops through all pixels
         for (int i = 0; i < image.getHeight(); i++) {
             for (int j = 0; j < image.getWidth(); j++) {
 
-                // if (!colorMatch(Color.BLACK, new Color(image.getRGB(j, i)))){
-                //     Color c = new Color(image.getRGB(j, i));
-                //     Color cc = brighten(c, .10);
-                //     image.setRGB(j, i, cc.getRGB());
-                // }
-                // else{
-                //     Color c = new Color(image.getRGB(j, i));
-                //     Color cc = brighten(c, .01);
-                //     image.setRGB(j, i, cc.getRGB());
-
-                // }
-
+                // if a pixel matches the colors clicked, note it
                 boolean matched = false;
                 for (Color p: backgroundColors){
                     if (colorMatch(p, new Color(image.getRGB(j, i)))){
@@ -95,12 +72,11 @@ import java.io.IOException;
                     }
 
                 }
-
+                // set pixel to myWhite
                 if (matched){
-                    image.setRGB(j, i, myWhite);
-                    // Color c = new Color(image.getRGB(j, i));
-                    // Color cc = brighten(c, .25);
-                    // image.setRGB(j, i, cc.getRGB());
+                    if (!colorMatch(Color.BLACK, new Color(image.getRGB(j, i)))){
+                        image.setRGB(j, i, myWhite);
+                    }
                 }
                 repaint();
             }
@@ -118,6 +94,22 @@ import java.io.IOException;
         if ((Math.abs(c1.getRed() - c2.getRed())) <= maxColorDiff) {
             if ((Math.abs(c1.getGreen() - c2.getGreen())) <= maxColorDiff) {
                 if ((Math.abs(c1.getBlue() - c2.getBlue())) <= maxColorDiff) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Tests whether the two colors are "similar enough" (your definition, subject to the maxColorDiff threshold, which you can vary).
+     */
+    private static boolean blackMatch(Color c1, Color c2) {
+        // compares colors
+        // if the abs value difference between the r g or b values is greater than the maxColorDiff, it returns false
+        if ((Math.abs(c1.getRed() - c2.getRed())) <= blackdiff) {
+            if ((Math.abs(c1.getGreen() - c2.getGreen())) <= blackdiff) {
+                if ((Math.abs(c1.getBlue() - c2.getBlue())) <= blackdiff) {
                     return true;
                 }
             }
