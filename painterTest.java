@@ -16,18 +16,17 @@ import java.io.IOException;
 
 
 /**
- * tests the painter
+ * @author Matthew Givens
  */
 
  public class painterTest extends DrawingGUI{
 
-    private static final int maxColorDiff = 10;
+    private static final int maxColorDiff = 80;
 
     private BufferedImage image;
     private Painter painter;
 
     // list of background colors which will be processed
-    private ArrayList<Color> backgroundColors;
 
     int myWhite = new Color(247, 236, 202).getRGB();
 
@@ -46,62 +45,33 @@ import java.io.IOException;
         System.out.println("constructor");
         repaint();
         System.out.println("constructor done");
-        
-
-        
-        // p.restore();
-        // image = p.getRecoloredImage();
     }
 
-
-        /**
-     * Overrides the drawing gui to set the corners
-     * ** first is assumed to be set higher and further left
+    /**
+     * When mouse is pressed, brightens pixels
      */
     @Override
     public void handleMousePress(int x, int y) {
-        backgroundColors = new ArrayList<Color>();
 
-        int r = 1;
-        for (int row = Math.max(x - r, 0); row < Math.min(x + r + 1, image.getWidth()); row++) {
-            for (int col = Math.max(y - r, 0); col < Math.min(y + r + 1, image.getHeight()); col++) {
-                Color c = new Color(image.getRGB(row, col));
-                if (!backgroundColors.contains(c)){
-                    backgroundColors.add(c);
-                }
-            }
-        }
-
+        // loop through all pixels
         for (int i = 0; i < image.getHeight(); i++) {
             for (int j = 0; j < image.getWidth(); j++) {
 
-                // if (!colorMatch(Color.BLACK, new Color(image.getRGB(j, i)))){
-                //     Color c = new Color(image.getRGB(j, i));
-                //     Color cc = brighten(c, .10);
-                //     image.setRGB(j, i, cc.getRGB());
-                // }
-                // else{
-                //     Color c = new Color(image.getRGB(j, i));
-                //     Color cc = brighten(c, .01);
-                //     image.setRGB(j, i, cc.getRGB());
-
-                // }
-
-                boolean matched = false;
-                for (Color p: backgroundColors){
-                    if (colorMatch(p, new Color(image.getRGB(j, i)))){
-                        matched = true;
-                        break;
-                    }
+                // if the color is not similar to black, brighten it by .10
+                if (!colorMatch(Color.BLACK, new Color(image.getRGB(j, i)))){
+                    Color c = new Color(image.getRGB(j, i));
+                    Color cc = brighten(c, .10);
+                    image.setRGB(j, i, cc.getRGB());
+                }
+                // otherwise brighten by .01
+                else{
+                    Color c = new Color(image.getRGB(j, i));
+                    Color cc = brighten(c, .01);
+                    image.setRGB(j, i, cc.getRGB());
 
                 }
 
-                if (matched){
-                    image.setRGB(j, i, myWhite);
-                    // Color c = new Color(image.getRGB(j, i));
-                    // Color cc = brighten(c, .25);
-                    // image.setRGB(j, i, cc.getRGB());
-                }
+                // repaint image
                 repaint();
             }
         }
