@@ -16,7 +16,8 @@ import java.io.IOException;
 
 
 /**
- * tests the painter
+ * click a point in the background of a painting and the program loops through its neighbors and looks through
+ * all the pixels in the painting and changes them to the color "myWhite"
  */
 
  public class painterTest extends DrawingGUI{
@@ -31,32 +32,19 @@ import java.io.IOException;
 
     int myWhite = new Color(247, 236, 202).getRGB();
 
-    // corner values initialized to -1 to show null
-    private int firstx = -1;
-    private int firsty = -1;
-
-    private int secondx = -1;
-    private int secondy = -1;
 
     public painterTest(String name, BufferedImage image){
         super(name, image.getWidth(), image.getHeight());
         this.image = image;
         
         
-        System.out.println("constructor");
         repaint();
-        System.out.println("constructor done");
         
-
-        
-        // p.restore();
-        // image = p.getRecoloredImage();
     }
 
 
-        /**
-     * Overrides the drawing gui to set the corners
-     * ** first is assumed to be set higher and further left
+    /**
+     * takes pixel clicked on and looks are nieghbors and turns all pixels similar to those colors to myWhite
      */
     @Override
     public void handleMousePress(int x, int y) {
@@ -75,18 +63,6 @@ import java.io.IOException;
         for (int i = 0; i < image.getHeight(); i++) {
             for (int j = 0; j < image.getWidth(); j++) {
 
-                // if (!colorMatch(Color.BLACK, new Color(image.getRGB(j, i)))){
-                //     Color c = new Color(image.getRGB(j, i));
-                //     Color cc = brighten(c, .10);
-                //     image.setRGB(j, i, cc.getRGB());
-                // }
-                // else{
-                //     Color c = new Color(image.getRGB(j, i));
-                //     Color cc = brighten(c, .01);
-                //     image.setRGB(j, i, cc.getRGB());
-
-                // }
-
                 boolean matched = false;
                 for (Color p: backgroundColors){
                     if (colorMatch(p, new Color(image.getRGB(j, i)))){
@@ -98,9 +74,6 @@ import java.io.IOException;
 
                 if (matched){
                     image.setRGB(j, i, myWhite);
-                    // Color c = new Color(image.getRGB(j, i));
-                    // Color cc = brighten(c, .25);
-                    // image.setRGB(j, i, cc.getRGB());
                 }
                 repaint();
             }
@@ -123,25 +96,6 @@ import java.io.IOException;
             }
         }
         return false;
-    }
-
-        /**
-     * Make a color brighten.
-     *
-     * @param color Color to make brighten.
-     * @param fraction Darkness fraction.
-     * @return Lighter color.
-     */
-    public static Color brighten(Color color, double fraction) {
-
-        int red = (int) Math.round(Math.min(255, color.getRed() + 255 * fraction));
-        int green = (int) Math.round(Math.min(255, color.getGreen() + 255 * fraction));
-        int blue = (int) Math.round(Math.min(255, color.getBlue() + 255 * fraction));
-
-        int alpha = color.getAlpha();
-
-        return new Color(red, green, blue, alpha);
-
     }
 
     @Override
